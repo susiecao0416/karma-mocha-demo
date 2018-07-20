@@ -1,70 +1,49 @@
-// Karma configuration
-// Generated on Wed Jul 11 2018 18:42:40 GMT+0800 (CST)
+let path = require("path")
+let webpack = require("webpack")
+let ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-module.exports = function(config) {
-  config.set({
+function resolve(dir) {
 
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    return path.join(__dirname, '..', dir)
+}
 
+var webpackConfig = {
 
-    // frameworks to use
-    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'requirejs', 'chai'],
+    module: {
 
+        rules: [
 
-    // list of files / patterns to load in the browser
-    files: [
-        {pattern: './test/unit/*.js', included: false},
-        {pattern: 'src/*.js', included: true}
-    ],
+            // babel-loader
+            {
+                test: /\.js$/,
+                use: 'babel-loader',
+                include: [resolve('src'), resolve('test')]
+            },
 
-    // list of files / patterns to exclude
-    exclude: [
-    ],
+            // 为了统计代码覆盖率，对 js 文件加入 istanbul-instrumenter-loader
+            {
+                test: /\.(js)$/,
+                exclude: /node_modules/,
+                include: /src|packages/,
+                enforce: 'post',
+                use: [{
+                    loader: "istanbul-instrumenter-loader",
+                    options: {
+                        esModules: true
+                    },
+                }]
+            },
 
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-        "src/**/*.js": ["babel"],
-        "test/**/*.js": ["babel"]
+        ]
     },
 
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
-
-
-    // web server port
-    port: 9876,
-
-
-    // enable / disable colors in the output (reporters and logs)
-    colors: true,
-
-
-    // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
-
-
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
-
-
-    // start these browsers
-    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
-
-
-    // Continuous Integration mode
-    // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false,
-
-    // Concurrency level
-    // how many browser should be started simultaneous
-    concurrency: Infinity
-  })
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: '"production"'
+            }
+        })
+    ]
 }
+
+module.exports = webpackConfig
