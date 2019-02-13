@@ -12,7 +12,6 @@ var webpackConfig = {
     module: {
 
         rules: [
-
             // babel-loader
             {
                 test: /\.js$/,
